@@ -1,0 +1,15 @@
+# prometheus.yml — Prometheus scrape configuration.
+#
+# Scrapes the inspection API's /metrics endpoint (see src/monitoring/metrics.py
+# for what's exposed there). Runs inside the same docker-compose network as
+# the API, so it reaches it by service name ("api"), not localhost.
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: "robot-inspection-api"
+    static_configs:
+      - targets: ["api:8000"]
+    metrics_path: /metrics

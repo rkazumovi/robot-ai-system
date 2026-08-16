@@ -1,0 +1,69 @@
+# docker-compose.yml — single-command deployment: `docker-compose up`.
+#
+# Currently defines the inspection API service. Prometheus/Grafana
+# monitoring services will be appended here as separate services once
+# built (each gets its own service block + shared network below), so
+# this file is the final "docker-compose up deploys everything" entry
+# point per the project's production requirements.
+
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: robot-ai-inspection-api:latest
+    container_name: robot-ai-api
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      # Mount outputs/ as a live volume (not just the COPY baked into the
+      # image at build time) so a newly-trained checkpoint can be picked
+      # up by restarting the container, without rebuilding the image.
+      - ../outputs:/app/outputs:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: robot-ai-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ../monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    restart: unless-stopped
+    depends_on:
+      - api
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: robot-ai-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      # Default demo credentials -- change before any real deployment.
+      # This is fine for local/portfolio use, not for anything internet-facing.
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+    volumes:
+      - ../monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - grafana-data:/var/lib/grafana
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+
+volumes:
+  prometheus-data:
+  grafana-data:
+
+networks:
+  default:
+    name: robot-ai-network

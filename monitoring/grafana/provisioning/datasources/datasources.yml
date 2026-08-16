@@ -1,0 +1,12 @@
+# datasources.yml — Auto-provisions Prometheus as a Grafana data source
+# on startup, so no manual "Add data source" click is needed.
+
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: true

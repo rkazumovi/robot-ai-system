@@ -1,0 +1,14 @@
+# dashboards.yml — Tells Grafana to auto-load any dashboard JSON files
+# placed in monitoring/grafana/dashboards/ on startup.
+
+apiVersion: 1
+
+providers:
+  - name: "Robot Inspection Dashboards"
+    orgId: 1
+    folder: ""
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    options:
+      path: /etc/grafana/provisioning/dashboards

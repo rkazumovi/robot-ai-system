@@ -1,0 +1,25 @@
+# Core ML
+torch>=2.9
+torchvision>=0.24
+scikit-learn>=1.7
+
+# Scientific computing
+numpy>=2.0
+scipy>=1.15
+
+# Computer Vision (Component 1)
+Pillow>=11.0
+
+# Dataset handling (Component 1 training pipeline)
+fiftyone>=1.0
+
+# LLM & Agents (Component 3)
+langgraph>=1.2
+transformers>=4.55
+prometheus-client>=0.20
+
+# Deployment (production API)
+fastapi>=0.140
+uvicorn[standard]>=0.50
+python-multipart>=0.0.20
+pydantic>=2.10
